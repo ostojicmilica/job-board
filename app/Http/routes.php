@@ -16,5 +16,7 @@ Route::get('/', function () {
 });
 Route::get('jobs', 'JobsController@index');
 Route::get('jobs/create', 'JobsController@create');
+Route::post('approve', 'JobsController@postApprove');
+Route::get('approve/{email}', 'JobsController@getApprove');
 Route::get('jobs/{id}', 'JobsController@show');
 Route::post('jobs', 'JobsController@store');

@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Job;
-use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class JobsController extends Controller
 {
@@ -66,13 +64,25 @@ class JobsController extends Controller
         return redirect('jobs');
     }
 
-    public function approve(Request $request)
+    public function postApprove(Request $request)
     {
         $input = $request->all();
+        $job = Job::where('email', $input['email'])->->first();
 
-        $job = Job::create($input);
-        $job->markApproved();
-        $this->postedFirstTime($input['email']);
+        if ($input['offer'] === 'Approve') {
+            $this->postedFirstTime($input['email']);
+            $job->markApproved();
+        } else {
+            $job->markRejected();
+
+        }
+
+        return redirect('jobs');
+    }
+
+    public function getApprove($email)
+    {
+        return view('jobs.approve', ['email' => $email]);
     }
 
     /**
@@ -97,7 +107,7 @@ class JobsController extends Controller
                     ->from('admin@app.com');
         });
 
-        Mail::send('emails.wait', $data, function ($message) use ($data) {
+        Mail::send('emails.wait', ['data' => $data], function ($message) use ($data) {
             $message->subject('Approve message')
                     ->to('admin@app.com')
                     ->from($data['email']);
@@ -109,7 +119,6 @@ class JobsController extends Controller
     {
         $user = DB::table('users')->where('email', $email)->first();
         $user->firstTimePosted = 1;
-        $user->save();
     }
 
 }
