@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class JobsController extends Controller
 {
@@ -45,7 +46,15 @@ class JobsController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+
+        $this->validate($request, [
+            'title' => 'required',
+            'description' => 'required',
+            'email' => ['required', 'email']
+        ]);
+
         $job = Job::create($input);
+
         if ($this->isFirstTime($input['email'])) {
             $job->markPending();
             $this->sendMails($input);
@@ -54,12 +63,12 @@ class JobsController extends Controller
         }
 
         return redirect('jobs');
-
     }
 
     public function approve(Request $request)
     {
         $input = $request->all();
+
         $job = Job::create($input);
         $job->markApproved();
         $this->postedFirstTime($input['email']);
