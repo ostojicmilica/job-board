@@ -67,15 +67,12 @@ class JobsController extends Controller
     public function postApprove(Request $request)
     {
         $input = $request->all();
-        $job = Job::where('email', $input['email'])->->first();
+        $job = DB::table('jobs')->where('email', $input['email'])->first();
 
         if ($input['offer'] === 'Approve') {
             $this->postedFirstTime($input['email']);
-            $job->markApproved();
-        } else {
-            $job->markRejected();
-
-        }
+            DB::table('jobs')->where('email', $input['email'])->update(['status' => 1]);
+        } 
 
         return redirect('jobs');
     }
@@ -117,8 +114,7 @@ class JobsController extends Controller
 
     private function postedFirstTime($email)
     {
-        $user = DB::table('users')->where('email', $email)->first();
-        $user->firstTimePosted = 1;
+        DB::table('users')->where('email', $email)->update(['firstTimePosted' => 1]);
     }
 
 }
