@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class JobsController extends Controller
@@ -89,13 +90,14 @@ class JobsController extends Controller
      */
     private function sendMails($data)
     {
-        Mail::raw('Your submission is in moderation.', function ($message, $data) {
+
+        Mail::raw('Your submission is in moderation.', function ($message) use ($data) {
             $message->subject('Waiting for approve')
                     ->to($data['email'])
                     ->from('admin@app.com');
         });
 
-        Mail::send('emails.wait', $data, function ($message, $data) {
+        Mail::send('emails.wait', $data, function ($message) use ($data) {
             $message->subject('Approve message')
                     ->to('admin@app.com')
                     ->from($data['email']);
